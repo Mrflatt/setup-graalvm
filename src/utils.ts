@@ -194,12 +194,20 @@ export async function findExistingPrCommentId(
   const octokit = github.getOctokit(getGitHubToken())
   try {
     const comments = await octokit.paginate(octokit.rest.issues.listComments, {
-      ...github.context.repo,
+      ...context.repo,
       issue_number: context.payload.pull_request?.number as number
     })
-    return comments.reverse().filter(comment => {
-      comment.body ? comment.body.includes(bodyIncludes) : false
-    })[0]?.id
+    core.info(`Found ${comments.length} comments`)
+    for (const comment of comments.reverse()) {
+      core.info(`Comment id: ${comment.id}`)
+      core.info(
+        `Body includes: ${comment.body ? comment.body.includes(bodyIncludes) : false}`
+      )
+      if (comment.body && comment.body.includes(bodyIncludes)) {
+        return comment.id
+      }
+    }
+    return
   } catch (err) {
     core.error(
       `Failed to list pull request comments. Please make sure this job has 'write' permissions for the 'pull-requests' scope (see https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions)? Internal error: ${err}`
@@ -221,6 +229,7 @@ export async function updatePRComment(
       comment_id: commentId,
       body: content
     })
+    core.info(`Updated comment id '${commentId}'.`)
   } catch (err) {
     core.error(
       `Failed to update pull request comment. Please make sure this job has 'write' permissions for the 'pull-requests' scope (see https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions)? Internal error: ${err}`
