@@ -195,7 +195,7 @@ export async function findExistingPrCommentId(
   const octokit = github.getOctokit(getGitHubToken())
   try {
     const comments = await octokit.paginate(octokit.rest.issues.listComments, {
-      ...github.context.repo,
+      ...context.repo,
       issue_number: context.payload.pull_request?.number as number
     })
     const matchingComment = comments.reverse().find(comment => {

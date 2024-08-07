@@ -1,0 +1,37 @@
+name: 'pr'
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  pr-comment:
+    name: native-image-musl on ubuntu-latest
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build dist/
+        run: |
+          npm install --save-dev
+          npm run package
+      - name: Run setup-graalvm action
+        uses: ./
+        with:
+          java-version: '21'
+          distribution: 'graalvm'
+          native-image-musl: 'true'
+          native-image-job-reports: 'true'
+          native-image-pr-reports: 'true'
+          native-image-merge-pr-reports: 'true'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build static HelloWorld executable with GraalVM Native Image and musl
+        run: |
+          echo 'public class HelloWorld { public static void main(String[] args) { System.out.println("Hello, World!"); } }' > HelloWorld.java
+          javac HelloWorld.java
+          native-image --static --libc=musl HelloWorld
+          ./helloworld

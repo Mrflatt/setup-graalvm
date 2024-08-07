@@ -144,6 +144,7 @@ export async function generateReports(): Promise<void> {
     if (arePRReportsEnabled()) {
       if (arePRMergeReportsEnabled()) {
         const commentId = await findExistingPrCommentId(PR_COMMENT_TITLE)
+        core.info(`Found existing PR comment ID: ${commentId}`)
         if (commentId) {
           return updatePRComment(report, commentId)
         }
