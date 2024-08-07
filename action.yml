@@ -47,6 +47,10 @@ inputs:
     required: false
     description: 'Post a comment containing a Native Image build report on pull requests.'
     default: 'false'
+  native-image-merge-pr-reports:
+    required: false
+    description: 'Merge existing comments with new a Native Image build report on pull requests.'
+    default: 'false'
   version:
     required: false
     description: 'GraalVM version (release, latest, dev).'
